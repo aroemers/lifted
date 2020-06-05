@@ -7,7 +7,7 @@
 # 🚡 Lifted
 
 A small Clojure library for lifting functions into protocols.
-It allows an easy way to protocolize a default implementation, which can be useful for testing (mocking) purposes for example.
+It allows an easy way to protocolize a (default) implementation, which can be useful for testing (mocking) purposes for example.
 
 ![Banner](banner.png)
 
