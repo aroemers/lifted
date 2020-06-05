@@ -6,7 +6,7 @@
 
 # 🚡 Lifted
 
-A Clojure library for lifting functions into protocols.
+A small Clojure library for lifting functions into protocols.
 It allows an easy way to protocolize a default implementation, which can be useful for testing (mocking) purposes for example.
 
 ![Banner](banner.png)
@@ -21,11 +21,11 @@ The library offers two macros and a function.
 
 The `lift-as` macro declares a protocol.
 Its sole argument is the name of the protocol to declare.
-The macro lifts the functions in the current namespace which names are prefixed with the `-` character into the protocol.
+The macro "lifts" the functions in the current namespace which names are prefixed with the `-` character into the protocol.
 The prefix is stripped from the protocol function names.
 Only those functions which take at least one argument are lifted.
 
-For example:
+For example, let's create a simple prefixed function:
 
 ```clj
 (defn -incr
@@ -40,10 +40,11 @@ The `lift-as` macro above expands to:
 
 ```clj
 (defprotocol Incrementer
-  (incr [this] [this n] "Incrementer function."))
+  (incr [this] [this n]
+    "Incrementer function."))
 ```
 
-The `lift-on` macro defines a protocol implementation.
+The `lift-on` macro creates a protocol implementation.
 Its two arguments are the protocol to implement and the object to use as `this`.
 The protocol simply forwards the calls to the prefixed functions, passing the `this` object as the first argument.
 For example:
@@ -65,7 +66,7 @@ The `lift-on` macro above expands to:
       (lifted [_] G__3427)))
 ```
 
-Now you can use the protocol implementation.
+Now you can use the protocol implementation as you would with any protocol.
 
 ```
 (incr i)
@@ -88,25 +89,25 @@ For example:
 #### Varargs
 
 Clojure protocols do not support varargs.
-Therefore the lifted function signatures with a vararg are normally stripped from the protocol.
+Therefore the lifted function argument lists with a vararg are normally stripped from the protocol.
 If however one needs varargs, you can pass an option map to `lift-as` as follows:
 
 ```clj
 (defn -vararg-test [y & ys]
   ...)
 
-(lift-as VarargTest {:expand-vararg-for #{-vararg-test}})
+(lift-as VarargTest {:expand-varargs-for #{-vararg-test}})
 ```
 
 This will expand the vararg into concrete arguments, up to a maximum of 20 total arguments.
-For example, above `lift-as` form would expand to:
+For example, above `lift-as` macro would expand to:
 
 ```clj
 (defprotocol VarargTest
-  (vararg-test [y] [y ys_0] [y ys_0 ys_1] ... [y ys_0 ys_1 ... ys_18]))
+  (vararg-test [y] [y ys_0] [y ys_0 ys_1] . . . [y ys_0 ys_1 .. ys_18]))
 ```
 
-The rule that a lifted function should at least take one argument still applies.
+The rule still applies that for a function to be lifted it should at least take one argument.
 
 #### Destructuring
 
