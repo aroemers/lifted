@@ -52,12 +52,13 @@
     `(~fstripped ~@arglists ~(:doc fmeta))))
 
 
-(defn ^:no-doc lift-on* [ns protocol-sym obj-sym]
-  (let [sigs (some-> protocol-sym resolve deref :sigs vals)]
+(defn ^:no-doc lift-on* [ns protocol-sym obj-sym opts]
+  (let [sigs (some->> protocol-sym (ns-resolve ns) deref :sigs vals)]
     (assert sigs "not a protocol")
     (for [{fsym :name arglists :arglists} sigs
           arglist                         arglists]
-      (let [impl-sym (symbol (namespace protocol-sym) (str "-" fsym))
+      (let [impl-ns  (some-> (get opts :impl-ns (namespace protocol-sym)) str)
+            impl-sym (symbol impl-ns (str "-" fsym))
             fmeta    (meta (resolve impl-sym))]
         (if (:private fmeta)
           `(~fsym ~arglist (@(var ~impl-sym) ~obj-sym ~@(rest arglist)))
@@ -93,12 +94,21 @@
 (defmacro lift-on
   "Create a protocol implementation for the given protocol. The protocol
   implementation calls \"lifted\" functions, receiving the given obj
-  as its first parameter."
-  [protocol obj]
-  (assert (resolve protocol) "unknown protocol")
-  (let [obj-sym (gensym)]
-    `(let [~obj-sym ~obj]
-       (reify ~protocol
-         ~@(lift-on* *ns* protocol obj-sym)
-         lifted.core/Lifted
-         (~'lifted [~'_] ~obj-sym)))))
+  as its first parameter.
+
+  An options map can be supplied. The following options are supported:
+
+  :impl-ns my.impl.mock
+
+  Instead of calling the lifted functions in the namespace of the
+  protocol, it will call them in the specified namespace."
+  ([protocol obj]
+   `(lift-on ~protocol ~obj nil))
+  ([protocol obj opts]
+   (assert (resolve protocol) "unknown protocol")
+   (let [obj-sym (gensym)]
+     `(let [~obj-sym ~obj]
+        (reify ~protocol
+          ~@(lift-on* *ns* protocol obj-sym opts)
+          lifted.core/Lifted
+          (~'lifted [~'_] ~obj-sym))))))

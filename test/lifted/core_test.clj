@@ -21,12 +21,12 @@
 ;;; Tests
 
 (deftest lift-as*-test
-  (is (= (lift-as* *ns* {})
+  (is (= (lift-as* 'lifted.core-test nil)
          '((foo [x y] "My docs")
            (private [x] nil)
            (var-args [x] nil))))
 
-  (is (= (lift-as* *ns* {:expand-varargs-for #{'-var-args}})
+  (is (= (lift-as* 'lifted.core-test {:expand-varargs-for #{'-var-args}})
          '((foo [x y] "My docs")
            (private [x] nil)
            (var-args [x]
@@ -52,8 +52,11 @@
                      nil)))))
 
 (deftest lift-on*-test
-  (is (= (lift-on* *ns* 'lifted.core/Lifted 'G_123)
-         '((lifted [this] (lifted.core/-lifted G_123))))))
+  (is (= (lift-on* 'lifted.core-test 'lifted.core/Lifted 'G_123 nil)
+         '((lifted [this] (lifted.core/-lifted G_123)))))
+
+  (is (= (lift-on* 'lifted.core-test 'lifted.core/Lifted 'G_123 {:impl-ns 'lifted.other})
+         '((lifted [this] (lifted.other/-lifted G_123))))))
 
 (deftest api-test
   (let [impl (lift-on Foo 10)]
