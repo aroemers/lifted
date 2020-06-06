@@ -39,25 +39,39 @@
 
 ;;; Macro helpers.
 
-(defn ^:no-doc lift-as* [ns opts]
-  (for [[fsym fvar] (ns-interns ns)
-        :let        [fname (str fsym)]
-        :when       (= (first fname) \-)
-        :let        [fmeta     (meta fvar)
-                     fstripped (symbol (subs fname 1))
-                     arglists  (if (contains? (:expand-varargs-for opts) fsym)
-                                 (expand-varargs (:arglists fmeta))
-                                 (strip-vararg (:arglists fmeta)))]
-        :when       (every? not-empty arglists)]
-    `(~fstripped ~@arglists ~(:doc fmeta))))
+(defn- lift-as-opts [ns opts]
+  (when-let [evf (:expand-varargs-for opts)]
+    (run! (fn [fsym]
+            (assert (ns-resolve ns (symbol (str "-" fsym)))
+                    (str "unknown function: " fsym)))
+          evf)
+    {:expand-varargs-for (set evf)}))
 
+(defn ^:no-doc lift-as* [ns opts]
+  (let [opts (lift-as-opts ns opts)]
+    (for [[fsym fvar] (ns-interns ns)
+          :let        [fname (str fsym)]
+          :when       (= (first fname) \-)
+          :let        [fmeta     (meta fvar)
+                       fstripped (symbol (subs fname 1))
+                       arglists  (if (contains? (:expand-varargs-for opts) fstripped)
+                                   (expand-varargs (:arglists fmeta))
+                                   (strip-vararg (:arglists fmeta)))]
+          :when       (every? not-empty arglists)]
+      `(~fstripped ~@arglists ~(:doc fmeta)))))
+
+(defn- lift-on-opts [opts]
+  (when-let [impl-ns (:impl-ns opts)]
+    (require impl-ns)
+    {:impl-ns (str impl-ns)}))
 
 (defn ^:no-doc lift-on* [ns protocol-sym obj-sym opts]
-  (let [sigs (some->> protocol-sym (ns-resolve ns) deref :sigs vals)]
+  (let [opts (lift-on-opts opts)
+        sigs (some->> protocol-sym (ns-resolve ns) deref :sigs vals)]
     (assert sigs "not a protocol")
     (for [{fsym :name arglists :arglists} sigs
           arglist                         arglists]
-      (let [impl-ns  (some-> (get opts :impl-ns (namespace protocol-sym)) str)
+      (let [impl-ns  (get opts :impl-ns (namespace protocol-sym))
             impl-sym (symbol impl-ns (str "-" fsym))
             fmeta    (meta (resolve impl-sym))]
         (if (:private fmeta)

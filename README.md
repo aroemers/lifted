@@ -96,7 +96,7 @@ If however one needs varargs, you can pass an option map to `lift-as` as follows
 (defn -vararg-test [y & ys]
   ...)
 
-(lift-as VarargTest {:expand-varargs-for #{-vararg-test}})
+(lift-as VarargTest {:expand-varargs-for #{vararg-test}})
 ```
 
 This will expand the vararg into concrete arguments, up to a maximum of 20 total arguments.
