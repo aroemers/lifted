@@ -72,7 +72,7 @@
     "Returns the object that was lifted using lift-on."))
 
 (defmacro lift-as
-  "Lift sthe functions in the current namespace into a protocol. Only
+  "Lifts the functions in the current namespace into a protocol. Only
   functions prefixed with the - character and taking at least one
   argument are lifted. The functions are lifted into a protocol with
   the given name, where the prefix is stripped from the protocol
@@ -93,8 +93,8 @@
 
 (defmacro lift-on
   "Create a protocol implementation for the given protocol. The protocol
-  implementation calls \"lifted\" functions, receiving the given obj
-  as its first parameter.
+  implementation calls \"lifted\" functions, passing the given obj as
+  its first parameter.
 
   An options map can be supplied. The following options are supported:
 
