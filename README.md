@@ -2,7 +2,7 @@
 [![cljdoc badge](https://cljdoc.org/badge/functionalbytes/lifted)](https://cljdoc.org/d/functionalbytes/lifted/CURRENT)
 [![Clojure CI](https://github.com/aroemers/lifted/workflows/Clojure%20CI/badge.svg?branch=master)](https://github.com/aroemers/lifted/actions?query=workflow%3A%22Clojure+CI%22)
 [![Clojars Project](https://img.shields.io/clojars/dt/functionalbytes/lifted?color=blue)](https://clojars.org/functionalbytes/lifted)
-![Height](https://img.shields.io/badge/height-lifted-brightgreen)
+[![Blogpost](https://img.shields.io/badge/blog-Introducing%20lifted-brightgreen)](https://functionalbytes.nl/clojure/lifted/protocols/2020/06/11/lifted.html)
 
 # 🚡 Lifted
 
