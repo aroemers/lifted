@@ -83,14 +83,14 @@
 
 (defprotocol Lifted
   (lifted [this]
-    "Returns the object that was lifted using lift-on."))
+    "Returns the object that was lifted using [[lift-on]]."))
 
 (defmacro lift-as
   "Lifts the functions in the current namespace into a protocol. Only
   functions prefixed with the - character and taking at least one
   argument are lifted. The functions are lifted into a protocol with
   the given name, where the prefix is stripped from the protocol
-  function names. Does not support destructuring in the functions'
+  function names. Does not support destructuring in the function
   signatures.
 
   An options map can be supplied. The following options are supported:
